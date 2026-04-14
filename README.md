@@ -7,7 +7,12 @@ First, clone this project :
 git clone https://github.com/TemanTumbuh/TemanTumbuhWeb.git
 ```
 
-second, install dependecy
+second, move to folder TemanTumbuhWeb in terminal
+```bash
+cd TemanTumbuhWeb
+```
+
+third, install dependecy
 ```bash
 npm i
 #or
