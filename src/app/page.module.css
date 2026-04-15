@@ -1,0 +1,148 @@
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 80px;
+  min-height: calc(100vh - 100px);
+  max-width: 1440px;
+  margin: 0 auto;
+  gap: 60px;
+}
+
+.textContent {
+  flex: 1;
+  max-width: 600px;
+}
+
+.title {
+  font-size: 56px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 24px;
+}
+
+.description {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--nav-text);
+  margin-bottom: 40px;
+  max-width: 480px;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary);
+  color: white;
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+.btnPrimary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(58, 90, 64, 0.2);
+}
+
+.imageContent {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heroImageContainer {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(59, 142, 116, 0.15);
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memberBadge {
+  position: absolute;
+  bottom: -20px;
+  left: -30px;
+  background-color: var(--accent);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  animation: float 6s ease-in-out infinite;
+}
+
+.memberCount {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.memberLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--foreground);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    padding: 40px 40px;
+    gap: 40px;
+  }
+  .title {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .textContent {
+    margin-bottom: 40px;
+  }
+  
+  .description {
+    margin: 0 auto 30px;
+  }
+  
+  .memberBadge {
+    left: auto;
+    right: -10px;
+    bottom: -10px;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .memberCount {
+    font-size: 20px;
+  }
+  
+  .memberLabel {
+    font-size: 10px;
+  }
+}
