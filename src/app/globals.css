@@ -1,49 +1,64 @@
+@import "tailwindcss";
+
 :root {
-  --background: #f4fbf4; /* Light green-ish background */
-  --background-radial: radial-gradient(circle at bottom left, #e4fbdb, #f6fdf3 40%, #ffffff);
-  --foreground: #1e2a22; /* Text dark green */
-  --primary: #3a5a40; /* Dark green button */
+  --background: #f4fbf4;
+  --background-radial: radial-gradient(
+    circle at bottom left,
+    #e4fbdb,
+    #f6fdf3 40%,
+    #ffffff
+  );
+  --foreground: #1e2a22;
+  --primary: #3a5a40;
   --primary-hover: #2d4632;
-  --secondary: #3b8e74; /* Teal green block */
-  --accent: #fcdab6; /* 12k member circle */
-  
+  --secondary: #3b8e74;
+  --accent: #fcdab6;
   --nav-text: #8e9e92;
   --nav-active: #3a5a40;
-  
-  --font-outfit: 'Outfit', sans-serif;
+  --font-outfit: "Outfit", sans-serif;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  min-height: 100vh;
   background: var(--background-radial);
   color: var(--foreground);
   font-family: var(--font-outfit);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
 }
 
 a {
-  text-decoration: none;
   color: inherit;
+  text-decoration: none;
 }
 
 button {
   cursor: pointer;
   border: none;
-  border-radius: 50px;
+  border-radius: 9999px;
   font-family: var(--font-outfit);
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
 }
 
 .btn-primary {
