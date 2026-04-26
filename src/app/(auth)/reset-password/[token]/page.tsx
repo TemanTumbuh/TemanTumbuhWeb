@@ -10,11 +10,11 @@ export default function ResetPasswordPage() {
   const params = useParams();
   const router = useRouter();
   const config = getAuthConfig("reset-password");
-  const token = params.token as string;
+  const _token = params.token as string;
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleResetPassword = async (formData: FormData) => {
-    const password = formData.get("password") as string;
+    const _password = formData.get("password") as string;
 
     try {
       // UNCOMMENT & IMPLEMENT THIS PART when backend is ready:

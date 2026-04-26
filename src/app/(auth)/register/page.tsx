@@ -8,9 +8,9 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title={config.title}
-      alternatePrompt={config.alternatePrompt}
-      alternateHref={config.alternateHref}
-      alternateLabel={config.alternateLabel}
+      alternatePrompt={config.alternatePrompt ?? ""}
+      alternateHref={config.alternateHref ?? ""}
+      alternateLabel={config.alternateLabel ?? ""}
     >
       <AuthForm type="register" />
     </AuthShell>
