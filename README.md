@@ -12,7 +12,12 @@ second, move to folder TemanTumbuhWeb in terminal
 cd TemanTumbuhWeb
 ```
 
-third, install dependecy
+third, move to dev branch, if u not in dev branch
+```bash
+git checkout dev
+```
+
+fourth, install dependecy
 ```bash
 npm i
 #or
