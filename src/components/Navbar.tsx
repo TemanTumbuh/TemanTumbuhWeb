@@ -1,32 +1,42 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, X, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isLoggedIn, currentUser, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isClient = typeof window !== "undefined";
 
   const toggleMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsMobileMenuOpen(false);
+    router.push("/");
+  };
+
   const navLinks = [
-    { name: 'Komunitas', href: '/' },
-    { name: 'Tentang kami', href: '/#tentang-kami' },
-    { name: 'Visi & Misi', href: '/#visi-misi' },
-    { name: 'Agenda Mendatang', href: '/jadwal-aktivitas' },
+    { name: "Komunitas", href: "/" },
+    { name: "Tentang kami", href: "/#tentang-kami" },
+    { name: "Visi & Misi", href: "/#visi-misi" },
+    { name: "Feed", href: "/feed" },
+    { name: "Agenda Mendatang", href: "/jadwal-aktivitas" },
   ];
 
   return (
     <nav className="w-full fixed top-0 left-0 right-0 z-50 bg-[#f4fbf4]/80 backdrop-blur-md border-b border-[#e1ebdc]/50">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-        
+      <div className="max-w-360 mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="relative h-12 w-[120px] shrink-0">
+        <Link href="/" className="relative h-12 w-30 shrink-0">
           <Image
             src="/images/maskot-temantumbuh.jpg"
             alt="Teman Tumbuh Logo"
@@ -39,18 +49,21 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8 lg:gap-10">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || (link.href === '/' && pathname === '/');
+            const isActive =
+              pathname === link.href || (link.href === "/" && pathname === "/");
             return (
               <Link
                 key={link.name}
                 href={link.href}
                 className={`text-[14px] lg:text-[15px] font-medium transition-all relative py-2 ${
-                  isActive ? 'text-[#3a5a40] font-bold' : 'text-[#849988] hover:text-[#3a5a40]'
+                  isActive
+                    ? "text-[#3a5a40] font-bold"
+                    : "text-[#849988] hover:text-[#3a5a40]"
                 }`}
               >
                 {link.name}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#3a5a40] rounded-t-md" />
+                  <span className="absolute bottom-0 left-0 w-full h-0.75 bg-[#3a5a40] rounded-t-md" />
                 )}
               </Link>
             );
@@ -59,14 +72,45 @@ export default function Navbar() {
 
         {/* Right Section (Auth) */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/login" className="text-[14px] lg:text-[15px] font-bold text-[#4c5e50] hover:text-[#3a5a40] transition">
-            Masuk
-          </Link>
-          <Link href="/register">
-            <button className="bg-[#486a4e] hover:bg-[#324a35] text-white px-6 py-2.5 rounded-full font-bold text-[14px] lg:text-[15px] shadow-sm transition transform hover:-translate-y-0.5">
-              Gabung Komunitas
-            </button>
-          </Link>
+          {isClient && isLoggedIn && currentUser ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                  <Image
+                    src={currentUser.avatar}
+                    alt={currentUser.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-sm font-medium text-[#4c5e50]">
+                  {currentUser.name}
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-[14px] lg:text-[15px] font-bold text-[#3a5a40] hover:text-[#2d4632] transition flex items-center gap-2"
+                title="Logout"
+              >
+                <LogOut size={18} />
+                Keluar
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-[14px] lg:text-[15px] font-bold text-[#4c5e50] hover:text-[#3a5a40] transition"
+              >
+                Masuk
+              </Link>
+              <Link href="/register">
+                <button className="bg-[#486a4e] hover:bg-[#324a35] text-white px-6 py-2.5 rounded-full font-bold text-[14px] lg:text-[15px] shadow-sm transition transform hover:-translate-y-0.5">
+                  Gabung Komunitas
+                </button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -85,7 +129,9 @@ export default function Navbar() {
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`text-[16px] font-medium py-2 border-b border-gray-50 ${
-                  pathname === link.href ? 'text-[#3a5a40] font-bold' : 'text-[#6c8571]'
+                  pathname === link.href
+                    ? "text-[#3a5a40] font-bold"
+                    : "text-[#6c8571]"
                 }`}
               >
                 {link.name}
@@ -93,16 +139,39 @@ export default function Navbar() {
             ))}
           </div>
           <div className="flex flex-col gap-4">
-            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="w-full border-2 border-[#3a5a40] text-[#3a5a40] py-3 rounded-full font-bold text-[16px]">
-                Masuk
-              </button>
-            </Link>
-            <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="w-full bg-[#3a5a40] text-white py-3 rounded-full font-bold text-[16px]">
-                Gabung Komunitas
-              </button>
-            </Link>
+            {isClient && isLoggedIn && currentUser ? (
+              <>
+                <div className="py-3 px-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm font-medium text-gray-900">
+                    {currentUser.name}
+                  </p>
+                  <p className="text-xs text-gray-600">{currentUser.bio}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-red-50 text-red-700 py-3 rounded-full font-bold text-[16px] hover:bg-red-100 transition flex items-center justify-center gap-2"
+                >
+                  <LogOut size={18} />
+                  Keluar
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <button className="w-full border-2 border-[#3a5a40] text-[#3a5a40] py-3 rounded-full font-bold text-[16px]">
+                    Masuk
+                  </button>
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <button className="w-full bg-[#3a5a40] text-white py-3 rounded-full font-bold text-[16px]">
+                    Gabung Komunitas
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

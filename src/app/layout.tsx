@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -20,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={outfit.variable}>
       <body className="min-h-screen bg-[#fefefb] text-[#1e2a22]">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

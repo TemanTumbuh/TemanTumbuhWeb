@@ -127,7 +127,7 @@ export default function AuthForm({ type, onSubmit }: AuthFormProps) {
         type="button"
         className="inline-flex h-[2.95rem] w-full items-center justify-center gap-2 rounded-full bg-[#efefe8] px-6 text-[0.8rem] font-semibold text-[#2f352e] shadow-[inset_0_0_0_1px_rgba(103,116,98,0.08)] transition hover:bg-[#ebebe2]"
       >
-        <span className="inline-flex h-4 w-4 items-center justify-center rounded-[2px] bg-white text-[0.6rem] font-bold text-[#8f9790] shadow">
+        <span className="inline-flex h-4 w-4 items-center justify-center rounded-xs bg-white text-[0.6rem] font-bold text-[#8f9790] shadow">
           G
         </span>
         <span>
