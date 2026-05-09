@@ -26,7 +26,7 @@ export default function AuthShell({
       <BackgroundShapes />
 
       <div className="relative flex min-h-screen items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[512px] rounded-[2rem] bg-white px-6 py-7 shadow-[0_16px_40px_rgba(50,72,42,0.1)]">
+        <div className="w-full max-w-lg rounded-4xl bg-white px-6 py-7 shadow-[0_16px_40px_rgba(50,72,42,0.1)]">
           <div className="flex flex-col items-center text-center">
             <Link
               href="/"
