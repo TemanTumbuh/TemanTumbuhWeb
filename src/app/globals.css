@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #3a5a40;
+  --color-primary-hover: #2d4632;
+  --color-secondary: #3b8e74;
+  --color-accent: #fcdab6;
+  --color-heading: #142018;
+  --color-muted: #a1afa4;
+  --color-admin-bg: #f6f9f5;
+  --color-admin-border: #e8efe9;
+  --color-background: #f4fbf4;
+  --color-foreground: #1e2a22;
+}
+
 :root {
   --background: #f4fbf4;
   --background-radial: radial-gradient(

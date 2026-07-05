@@ -9,15 +9,15 @@ import { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const config = getAuthConfig("login");
-  const { login, isLoggedIn } = useAuth();
+  const { login, isLoggedIn, currentUser } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.push("/");
+      router.push(currentUser?.role === "admin" ? "/admin" : "/");
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, currentUser, router]);
 
   const handleLogin = async (formData: FormData) => {
     const email = formData.get("email") as string;
@@ -35,7 +35,7 @@ export default function LoginPage() {
     setError(null);
 
     if (user.role === "admin") {
-      router.push("/dashboard");
+      router.push("/admin");
 
       return;
     }
