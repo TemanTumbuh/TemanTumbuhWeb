@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #3a5a40;
+  --color-primary-hover: #2d4632;
+  --color-secondary: #3b8e74;
+  --color-accent: #fcdab6;
+  --color-heading: #142018;
+  --color-muted: #a1afa4;
+  --color-admin-bg: #f6f9f5;
+  --color-admin-border: #e8efe9;
+  --color-background: #f4fbf4;
+  --color-foreground: #1e2a22;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4fbf4;
+  --background-radial: radial-gradient(
+    circle at bottom left,
+    #e4fbdb,
+    #f6fdf3 40%,
+    #ffffff
+  );
+  --foreground: #1e2a22;
+  --primary: #3a5a40;
+  --primary-hover: #2d4632;
+  --secondary: #3b8e74;
+  --accent: #fcdab6;
+  --nav-text: #8e9e92;
+  --nav-active: #3a5a40;
+  --font-outfit: "Outfit", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  min-height: 100vh;
+  background: var(--background-radial);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-outfit);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-outfit);
+  font-weight: 500;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  padding: 12px 24px;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(58, 90, 64, 0.2);
 }
