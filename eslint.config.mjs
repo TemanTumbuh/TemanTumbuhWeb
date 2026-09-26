@@ -13,6 +13,22 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Kode ini memakai konvensi prefix "_" untuk nilai yang sengaja belum
+      // dipakai (mis. `_token` di reset-password yang menunggu endpoint backend).
+      // Tanpa aturan ini, konvensi tersebut tetap dilaporkan sebagai warning.
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;
