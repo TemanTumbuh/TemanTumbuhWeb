@@ -14,8 +14,8 @@ export default function Footer() {
               src="/images/maskot-temantumbuh.jpg"
               alt="Teman Tumbuh Logo"
               fill
+              sizes="110px"
               className="object-contain mix-blend-multiply drop-shadow-sm"
-              priority
             />
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-[14px] text-[#4a5c50]">

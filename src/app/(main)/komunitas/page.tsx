@@ -1,8 +1,19 @@
-export default function Komunitas() {
+import type { Metadata } from "next";
+import PagePlaceholder from "@/components/PagePlaceholder";
+
+export const metadata: Metadata = {
+  title: "Komunitas · Teman Tumbuh",
+  description: "Ruang komunitas Teman Tumbuh — segera hadir.",
+  robots: { index: false },
+};
+
+export default function KomunitasPage() {
   return (
-    <div style={{ padding: "100px 80px", minHeight: "60vh", textAlign: "center" }}>
-      <h1 style={{ fontSize: "3rem", marginBottom: "24px" }}>Komunitas</h1>
-      <p style={{ color: "var(--nav-text)" }}>Halaman ini sedang dalam tahap pengembangan.</p>
-    </div>
+    <PagePlaceholder
+      title="Komunitas"
+      description="Halaman ini sedang dalam tahap pengembangan. Untuk saat ini, jelajahi cerita komunitas lewat Feed."
+      backHref="/feed"
+      backLabel="Lihat Feed"
+    />
   );
 }
