@@ -68,8 +68,10 @@ function BackgroundShapes() {
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <Image
         src="/images/bg-auth-page.png"
-        alt="Authentication Background"
+        alt=""
+        aria-hidden="true"
         fill
+        sizes="100vw"
         className="object-cover object-center"
         priority
         quality={90}

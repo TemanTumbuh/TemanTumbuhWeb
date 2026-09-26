@@ -80,7 +80,7 @@ export default function AuthForm({ type, onSubmit }: AuthFormProps) {
             autoComplete={field.autoComplete}
             minLength={field.minLength}
             required={field.required}
-            labelAction={
+            belowContent={
               isForgotPasswordField ? (
                 <Link
                   href="/forgot-password"
