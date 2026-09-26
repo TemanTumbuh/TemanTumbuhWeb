@@ -14,8 +14,6 @@ import {
   Images,
   Info,
   Calendar,
-  LogOut,
-  Settings,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -31,7 +29,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ size?: number }>> = {
 export const ADMIN_SIDEBAR_ID = "admin-sidebar";
 
 export default function AdminSidebar() {
-  const { sidebarOpen, setSidebarOpen, logout } = useAdminContext();
+  const { sidebarOpen, setSidebarOpen } = useAdminContext();
   const pathname = usePathname();
 
   // Drawer mobile ditutup dengan Esc. Efek ini hanya memasang listener DOM
@@ -140,38 +138,14 @@ export default function AdminSidebar() {
           })}
         </nav>
 
-        <div className="space-y-3 px-4 py-4">
-          <Link
-            href="/feed"
-            onClick={closeDrawer}
-            className="block w-full rounded-xl bg-primary px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-primary-hover active:scale-[0.98]"
-          >
-            Add New Post
-          </Link>
-
-          <div className="space-y-1 border-t border-admin-border pt-3">
-            <Link
-              href="/admin/settings"
-              onClick={closeDrawer}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#556658] transition hover:bg-admin-bg"
-            >
-              <Settings size={18} className="text-muted" />
-              Settings
-            </Link>
-            <button
-              type="button"
-              onClick={logout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600 transition hover:bg-red-50"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
-          </div>
-
-          <p className="text-center text-xs text-muted">
-            © 2026 Teman Tumbuh
-          </p>
-        </div>
+        {/*
+          "Add New Post" (hanya membuka /feed), Settings (halaman berisi
+          pengaturan palsu), dan Logout dihapus dari sini. "Lihat Situs" dan
+          "Keluar" kini ada di dropdown akun pada header.
+        */}
+        <p className="border-t border-admin-border px-4 py-4 text-center text-xs text-muted">
+          © 2026 Teman Tumbuh
+        </p>
       </aside>
     </>
   );

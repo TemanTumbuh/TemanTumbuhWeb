@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMounted } from "@/hooks/useMounted";
+import { useDismiss } from "@/hooks/useDismiss";
 import UserAvatar from "@/components/UserAvatar";
 
 // Hijau hidup untuk state aktif/hover/CTA — sengaja lebih jenuh daripada
@@ -47,25 +48,7 @@ export default function Navbar() {
   };
 
   // Tutup popup saat klik di luar area atau tekan Escape.
-  useEffect(() => {
-    if (!userMenuOpen) return;
-
-    const handlePointerDown = (e: MouseEvent) => {
-      if (!userMenuRef.current?.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setUserMenuOpen(false);
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [userMenuOpen]);
+  useDismiss(userMenuRef, userMenuOpen, () => setUserMenuOpen(false));
 
   const navLinks = [
     { name: "Komunitas", href: "/" },
