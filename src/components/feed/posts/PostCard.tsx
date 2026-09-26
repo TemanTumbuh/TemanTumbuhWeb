@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Post } from "@/types/feed.types";
 import { formatDate } from "@/lib/feedHelpers";
 import PostActions from "./PostActions";
+import UserAvatar from "@/components/UserAvatar";
 
 interface PostCardProps {
   post: Post;
@@ -38,16 +39,7 @@ export default function PostCard({ post, isLoggedIn }: PostCardProps) {
         <div className="flex items-start justify-between">
           <div className="flex gap-3 flex-1">
             {/* Avatar */}
-            <div className="shrink-0">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200">
-                <Image
-                  src={post.user.avatar}
-                  alt={post.user.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
+            <UserAvatar src={post.user.avatar} name={post.user.name} size={48} />
 
             {/* User Info */}
             <div className="flex-1 min-w-0">
@@ -82,8 +74,9 @@ export default function PostCard({ post, isLoggedIn }: PostCardProps) {
           <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100">
             <Image
               src={post.image}
-              alt="Post image"
+              alt={`Gambar dari postingan ${post.user.name}`}
               fill
+              sizes="(max-width: 1024px) 100vw, 600px"
               className="object-cover"
             />
           </div>

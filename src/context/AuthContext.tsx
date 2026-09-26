@@ -1,32 +1,133 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useSyncExternalStore,
+} from "react";
 
 import { User, AuthContextType } from "@/types/feed.types";
 import { DUMMY_USERS } from "@/config/feedConfig";
+import { isAllowedImageSrc } from "@/lib/imageHosts";
+import { useMounted } from "@/hooks/useMounted";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function getInitialUser(): User | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
+// ============================================
+// Store sesi (mock) di atas localStorage
+// ============================================
+//
+// Sebelumnya sesi dibaca dari localStorage di initializer useState. Di server
+// localStorage tidak ada (→ null), sedangkan di render client pertama sudah ada
+// (→ user) — HTML-nya berbeda sehingga React melempar hydration error.
+//
+// useSyncExternalStore menyelesaikannya: selama hydration React memakai
+// getServerSnapshot (null, sama persis dengan HTML server), lalu langsung
+// render ulang dengan nilai client. Bonus: sesi ikut sinkron antar-tab lewat
+// event "storage".
+
+const STORAGE_KEY = "currentUser";
+
+const listeners = new Set<() => void>();
+
+// Cadangan in-memory bila localStorage tidak bisa dipakai (mode privat /
+// storage diblokir) — supaya login tetap jalan selama tab terbuka.
+let memoryRaw: string | null = null;
+
+// getSnapshot wajib mengembalikan referensi yang sama selama datanya tidak
+// berubah, kalau tidak React akan render tanpa henti. Hasil parse di-cache per
+// string mentah.
+let cachedRaw: string | null | undefined;
+let cachedUser: User | null = null;
+
+function parseUser(raw: string | null): User | null {
+  if (!raw) return null;
 
   try {
-    const storedUser = localStorage.getItem("currentUser");
+    const parsed = JSON.parse(raw) as User;
 
-    return storedUser ? JSON.parse(storedUser) : null;
+    // Sesi lama bisa membawa URL avatar dari host yang sudah tidak diizinkan
+    // lagi (mis. link CDN bertanda tangan yang kedaluwarsa), atau kosong karena
+    // objek user disimpan sebelum avatar dummy ditambahkan. Coba pulihkan dari
+    // DUMMY_USERS (cocokkan by id, fallback email) supaya sesi yang sudah
+    // berjalan otomatis mendapat foto terbaru tanpa perlu logout — baru jatuh
+    // ke inisial (UserAvatar) bila memang tak ada padanan.
+    if (!isAllowedImageSrc(parsed.avatar)) {
+      const known = DUMMY_USERS.find(
+        (u) => u.id === parsed.id || u.email === parsed.email,
+      );
+
+      parsed.avatar = isAllowedImageSrc(known?.avatar) ? known!.avatar : "";
+    }
+
+    return parsed;
   } catch (error) {
     console.error("Failed to parse user", error);
-
-    localStorage.removeItem("currentUser");
-
     return null;
   }
 }
 
+function readRaw(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return memoryRaw;
+  }
+}
+
+function getSnapshot(): User | null {
+  const raw = readRaw();
+
+  if (raw !== cachedRaw) {
+    cachedRaw = raw;
+    cachedUser = parseUser(raw);
+  }
+
+  return cachedUser;
+}
+
+const getServerSnapshot = (): User | null => null;
+
+function writeUser(user: User | null) {
+  memoryRaw = user ? JSON.stringify(user) : null;
+
+  try {
+    if (memoryRaw) localStorage.setItem(STORAGE_KEY, memoryRaw);
+    else localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* storage tidak tersedia — memoryRaw yang dipakai */
+  }
+
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY || e.key === null) listener();
+  };
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", handleStorage);
+  };
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(getInitialUser);
+  const currentUser = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
+
+  // false selama SSR + render hydration (saat currentUser pasti null), true
+  // setelahnya. Komponen yang me-redirect berdasarkan status login wajib
+  // menunggu ini — kalau tidak, user yang sebenarnya sudah login akan
+  // terlempar ke /login pada render pertama.
+  const isReady = useMounted();
 
   const isLoggedIn = !!currentUser;
 
@@ -71,9 +172,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return null;
       }
 
-      setCurrentUser(matchedUser.user);
-
-      localStorage.setItem("currentUser", JSON.stringify(matchedUser.user));
+      writeUser(matchedUser.user);
 
       return matchedUser.user;
     },
@@ -81,9 +180,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const logout = useCallback(() => {
-    setCurrentUser(null);
+    writeUser(null);
+  }, []);
 
-    localStorage.removeItem("currentUser");
+  // Dipakai halaman profil (Edit Profil). Masih lokal: localStorage.
+  // Saat integrasi profil dikerjakan, ini yang memanggil PATCH /api/users/:id
+  // lalu menyimpan hasil dari server, bukan menyimpan input mentah.
+  const updateUser = useCallback((patch: Partial<User>) => {
+    const prev = getSnapshot();
+    if (!prev) return;
+
+    writeUser({ ...prev, ...patch });
   }, []);
 
   return (
@@ -91,8 +198,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         currentUser,
         isLoggedIn,
+        isReady,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

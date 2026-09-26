@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { User } from "@/types/feed.types";
 import { TRENDING_HASHTAGS } from "@/config/feedConfig";
+import UserAvatar from "@/components/UserAvatar";
 
 interface SuggestionsSidebarProps {
   suggestedUsers: User[];
@@ -24,14 +24,7 @@ export default function SuggestionsSidebar({
           {suggestedUsers.map((user) => (
             <div key={user.id} className="flex items-center justify-between">
               <div className="flex items-center gap-3 flex-1">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0">
-                  <Image
-                    src={user.avatar}
-                    alt={user.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                <UserAvatar src={user.avatar} name={user.name} size={40} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {user.name}
