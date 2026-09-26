@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ImageIcon, Smile } from "lucide-react";
 import { User } from "@/types/feed.types";
+import { FEED_CONFIG } from "@/config/feedConfig";
+import UserAvatar from "@/components/UserAvatar";
 
 interface PostInputProps {
   currentUser: User | null;
@@ -13,7 +14,11 @@ interface PostInputProps {
 
 export default function PostInput({ currentUser, isLoggedIn }: PostInputProps) {
   const [content, setContent] = useState("");
-  const MAX_LENGTH = 280;
+  // Satu sumber batas panjang — sebelumnya nilai ini didefinisikan ulang di
+  // sini (280) terpisah dari FEED_CONFIG.MAX_CONTENT_LENGTH yang jadi tak
+  // terpakai (lihat audit C10). Catatan: ini aturan sisi FE saja, backend
+  // saat ini tidak membatasi panjang `content`.
+  const MAX_LENGTH = FEED_CONFIG.MAX_CONTENT_LENGTH;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,17 +53,8 @@ export default function PostInput({ currentUser, isLoggedIn }: PostInputProps) {
     >
       <div className="flex gap-4">
         {/* Avatar */}
-        {currentUser?.avatar && (
-          <div className="shrink-0">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200">
-              <Image
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
+        {currentUser && (
+          <UserAvatar src={currentUser.avatar} name={currentUser.name} size={48} />
         )}
 
         <div className="flex-1">
@@ -66,6 +62,7 @@ export default function PostInput({ currentUser, isLoggedIn }: PostInputProps) {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value.slice(0, MAX_LENGTH))}
+            aria-label="Tulis postingan"
             placeholder="Apa yang sedang Anda alami hari ini?"
             className="w-full bg-transparent border-none outline-none text-gray-800 placeholder-gray-400 resize-none text-sm font-medium"
             rows={3}
@@ -77,14 +74,16 @@ export default function PostInput({ currentUser, isLoggedIn }: PostInputProps) {
               <button
                 type="button"
                 className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-all"
-                title="Add image"
+                aria-label="Tambah gambar"
+                title="Tambah gambar"
               >
                 <ImageIcon size={18} />
               </button>
               <button
                 type="button"
                 className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-all"
-                title="Add emoji"
+                aria-label="Tambah emoji"
+                title="Tambah emoji"
               >
                 <Smile size={18} />
               </button>

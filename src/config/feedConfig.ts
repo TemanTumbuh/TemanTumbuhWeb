@@ -6,8 +6,7 @@ export const DUMMY_USERS: User[] = [
     id: "admin-1",
     name: "Nekocha",
     email: "admin@gmail.com",
-    avatar:
-      "https://instagram.fcgk33-1.fna.fbcdn.net/v/t51.82787-19/620241838_18069025826400628_5704087553553793955_n.jpg?stp=dst-jpg_s150x150_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDgwLmMyIn0&_nc_ht=instagram.fcgk33-1.fna.fbcdn.net&_nc_cat=104&_nc_oc=Q6cZ2gFICBaf8_WFdQXOy81RguZE0fSy8C54XrzySTsk_r2emNgttLYqlRXVYGo0db9NNbTh8g5o1M45GIYbQ-oQALLR&_nc_ohc=zPmrTmZ7vtsQ7kNvwHCzlHb&_nc_gid=QjuwPrQDprN-7WsSFPqJUA&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_Af70KGM6HPhZyff6wDXfhHesn8-e4jrEZFNOj_NnCqDtNA&oe=6A04BBD0&_nc_sid=7a9f4b",
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
     username: "admin_temantumbuh",
     bio: "Administrator",
     role: "admin",
@@ -246,16 +245,6 @@ export const TRENDING_HASHTAGS = [
   "#CreativeMind",
   "#CareerGrowth",
 ];
-
-// API endpoints placeholder
-export const API_CONFIG = {
-  BASE_URL: "http://localhost:5000/api",
-  ENDPOINTS: {
-    POSTS: "/posts",
-    CATEGORIES: "/categories",
-    USERS: "/users",
-  },
-};
 
 // Feed config
 export const FEED_CONFIG = {

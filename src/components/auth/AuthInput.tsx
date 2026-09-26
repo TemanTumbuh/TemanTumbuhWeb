@@ -37,7 +37,14 @@ export default function AuthInput({
         {labelAction}
       </span>
 
-      <span className="flex h-[2.95rem] items-center gap-3 rounded-full bg-[#f1f1ea] px-4 text-[#7d857d] shadow-[inset_0_0_0_1px_rgba(111,125,108,0.04)] transition focus-within:bg-white focus-within:shadow-[inset_0_0_0_1px_rgba(191,209,182,0.72),0_0_0_4px_rgba(219,235,204,0.34)] sm:h-[3.1rem] sm:px-5">
+      {/*
+        Outline aktif ditaruh di pembungkus ini (lewat focus-within), bukan di
+        <input> itu sendiri — <input> punya focus-visible:outline-none supaya
+        tidak muncul kotak fokus ganda milik browser di dalam pil ini.
+        Latar default & aktif sama-sama terang; yang membedakan cuma cincin
+        di sekeliling pembungkus saat elemennya fokus.
+      */}
+      <span className="flex h-[2.95rem] items-center gap-3 rounded-full bg-white px-4 text-[#7d857d] shadow-[inset_0_0_0_1px_rgba(111,125,108,0.18)] transition focus-within:shadow-[inset_0_0_0_1.5px_rgba(58,90,64,0.7),0_0_0_4px_rgba(58,90,64,0.16)] sm:h-[3.1rem] sm:px-5">
         {IconComponent && !icon && (
           <span className="shrink-0 text-[#8b9388]" aria-hidden="true">
             <IconComponent size={18} strokeWidth={1.7} />
@@ -51,7 +58,7 @@ export default function AuthInput({
         )}
 
         <input
-          className={`w-full border-0 bg-transparent text-[0.8rem] text-[#2a332d] outline-none placeholder:text-[#9ea49b] sm:text-[0.88rem] ${className ?? ""}`}
+          className={`auth-input w-full border-0 bg-transparent text-[0.8rem] text-[#2a332d] outline-none placeholder:text-[#9ea49b] sm:text-[0.88rem] ${className ?? ""}`}
           {...props}
         />
       </span>

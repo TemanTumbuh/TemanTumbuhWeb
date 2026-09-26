@@ -31,9 +31,11 @@ export default function PostActions({
       <div className="flex items-center gap-2">
         {/* Like Button */}
         <button
+          type="button"
           onClick={onLike}
           disabled={!isLoggedIn}
           className={actionButtonClass(!isLoggedIn)}
+          aria-label={`Suka — ${post.likes} suka`}
           title={!isLoggedIn ? "Login untuk like" : "Like post"}
         >
           <Heart size={18} />
@@ -42,9 +44,11 @@ export default function PostActions({
 
         {/* Comment Button */}
         <button
+          type="button"
           onClick={onComment}
           disabled={!isLoggedIn}
           className={actionButtonClass(!isLoggedIn)}
+          aria-label={`Komentar — ${post.comments} komentar`}
           title={!isLoggedIn ? "Login untuk comment" : "Comment post"}
         >
           <MessageCircle size={18} />
@@ -53,9 +57,11 @@ export default function PostActions({
 
         {/* Share Button */}
         <button
+          type="button"
           onClick={onShare}
           disabled={!isLoggedIn}
           className={actionButtonClass(!isLoggedIn)}
+          aria-label={`Bagikan — ${post.shares} kali dibagikan`}
           title={!isLoggedIn ? "Login untuk share" : "Share post"}
         >
           <Share2 size={18} />
@@ -66,8 +72,10 @@ export default function PostActions({
       {/* Menu Button (3 dots) */}
       {isLoggedIn && (
         <button
+          type="button"
           className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-all"
-          title="More options"
+          aria-label="Opsi lainnya"
+          title="Opsi lainnya"
         >
           <MoreVertical size={18} />
         </button>

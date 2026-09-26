@@ -145,8 +145,9 @@ export default function AboutUsPage() {
               <div className="relative mb-3 h-40 overflow-hidden rounded-xl">
                 <Image
                   src={content.about.featuredImage}
-                  alt="Featured"
+                  alt="Gambar utama halaman Tentang Kami"
                   fill
+                  sizes="(max-width: 768px) 100vw, 640px"
                   className="object-cover"
                 />
               </div>

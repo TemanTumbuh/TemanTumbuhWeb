@@ -1,8 +1,19 @@
-export default function JadwalAktivitas() {
+import type { Metadata } from "next";
+import PagePlaceholder from "@/components/PagePlaceholder";
+
+export const metadata: Metadata = {
+  title: "Jadwal Aktivitas · Teman Tumbuh",
+  description: "Agenda dan aktivitas mendatang Teman Tumbuh — segera hadir.",
+  robots: { index: false },
+};
+
+export default function JadwalAktivitasPage() {
   return (
-    <div style={{ padding: "100px 80px", minHeight: "60vh", textAlign: "center" }}>
-      <h1 style={{ fontSize: "3rem", marginBottom: "24px" }}>Jadwal Aktivitas</h1>
-      <p style={{ color: "var(--nav-text)" }}>Halaman ini sedang dalam tahap pengembangan.</p>
-    </div>
+    <PagePlaceholder
+      title="Jadwal Aktivitas"
+      description="Halaman jadwal lengkap sedang kami siapkan. Cek agenda terdekat di beranda untuk sementara."
+      backHref="/#agenda"
+      backLabel="Lihat agenda di beranda"
+    />
   );
 }

@@ -78,6 +78,45 @@ export const getSuggestedUsers = (excludeUserId?: string): User[] => {
 };
 
 /**
+ * Postingan milik satu user, terbaru lebih dulu.
+ *
+ * Masih dari data dummy: backend belum menyediakan filter per-user di
+ * `GET /api/v1/posts` (query yang ada baru limit/cursor/categoryId).
+ */
+export const getPostsByUser = (userId: string): Post[] => {
+  return DUMMY_POSTS.filter((post) => post.userId === userId).sort(
+    (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+  );
+};
+
+export interface ProfileStats {
+  posts: number;
+  followers: number;
+  following: number;
+}
+
+/**
+ * Statistik untuk header profil.
+ *
+ * `posts` dihitung dari data yang ada. `followers`/`following` MASIH MOCK —
+ * backend belum punya konsep follow sama sekali (tidak ada tabel maupun
+ * endpoint-nya), jadi angkanya diturunkan secara deterministik dari id user
+ * supaya konsisten antar render dan antara server & client.
+ */
+export const getProfileStats = (userId: string): ProfileStats => {
+  const seed = Array.from(userId).reduce(
+    (total, char) => total + char.charCodeAt(0),
+    0,
+  );
+
+  return {
+    posts: getPostsByUser(userId).length,
+    followers: 120 + (seed % 880),
+    following: 40 + (seed % 260),
+  };
+};
+
+/**
  * Mock API call - ready for backend integration
  */
 export const mockApiCall = async <T>(delayMs: number = 300): Promise<T> => {

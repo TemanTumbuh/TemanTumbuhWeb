@@ -10,11 +10,14 @@ import React, {
 import type { AdminContextType, AdminUser } from "@/types/admin.types";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { ADMIN_PERMISSIONS } from "@/lib/constants/admin-menu";
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Hanya mengatur drawer di mobile — di desktop (md+) sidebar selalu tampil
+  // lewat CSS. Default tertutup supaya konten tidak langsung tertutupi.
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const { currentUser, isLoggedIn, logout: authLogout } = useAuth();
 
@@ -29,14 +32,11 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       email: currentUser.email,
       role: "admin",
       avatar: currentUser.avatar,
-      permissions: [
-        "view_dashboard",
-        "manage_users",
-        "manage_categories",
-        "manage_faqs",
-        "manage_gallery",
-        "manage_content",
-      ],
+      // Sumber tunggal: sebelumnya daftar ini ditulis ulang manual di sini dan
+      // sudah menyimpang dari ADMIN_PERMISSIONS (kurang "view_analytics") — lihat
+      // audit C8. Belum ada enforcement per-permission di UI; ini masih
+      // representasi "admin = semua akses" sampai backend punya roles (gap G1).
+      permissions: Object.values(ADMIN_PERMISSIONS),
     };
   }, [isLoggedIn, currentUser]);
 

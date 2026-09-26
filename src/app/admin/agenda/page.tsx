@@ -102,6 +102,9 @@ export default function AgendaPage() {
               <button
                 type="button"
                 onClick={() => handleDelete(event.id)}
+                aria-label={
+                  event.title ? `Hapus acara ${event.title}` : "Hapus acara"
+                }
                 className="rounded-lg p-2 text-muted hover:bg-red-50 hover:text-red-600"
               >
                 <Trash2 size={16} />

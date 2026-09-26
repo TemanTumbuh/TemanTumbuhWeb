@@ -14,20 +14,14 @@
 }
 
 :root {
-  --background: #f4fbf4;
-  --background-radial: radial-gradient(
-    circle at bottom left,
-    #e4fbdb,
-    #f6fdf3 40%,
-    #ffffff
-  );
+  --background: #ffffff;
   --foreground: #1e2a22;
   --primary: #3a5a40;
   --primary-hover: #2d4632;
   --secondary: #3b8e74;
   --accent: #fcdab6;
   --nav-text: #8e9e92;
-  --nav-active: #3a5a40;
+  --nav-active: #2f8f4e;
   --font-outfit: "Outfit", sans-serif;
 }
 
@@ -43,7 +37,7 @@ html {
 
 body {
   min-height: 100vh;
-  background: var(--background-radial);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-outfit);
 }
@@ -84,4 +78,30 @@ select {
   background-color: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(58, 90, 64, 0.2);
+}
+
+/* Indikator fokus konsisten untuk navigasi keyboard — sebelumnya beberapa
+   elemen memakai outline-none tanpa pengganti (lihat audit A3). */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Kolom form auth (AuthInput/PasswordInput) menaruh indikator fokus di
+ * PEMBUNGKUS pil (lewat focus-within:shadow-*), bukan di <input> itu sendiri
+ * — jadi outline bawaan di atas perlu dimatikan khusus untuk elemen ini.
+ *
+ * Catatan penting: kelas Tailwind `focus-visible:outline-none` TIDAK CUKUP
+ * di sini. Seluruh utility Tailwind v4 dihasilkan di dalam `@layer
+ * utilities`, dan menurut spesifikasi CSS Cascade Layers, style yang TIDAK
+ * berada dalam layer manapun (seperti aturan `:focus-visible` di atas) SELALU
+ * menang melawan style di dalam layer apa pun — berapa pun spesifisitasnya.
+ * Makanya aturan ini sengaja ditulis polos di sini (di luar @layer juga),
+ * supaya bersaing head-to-head secara spesifisitas dengan aturan di atas,
+ * bukan kalah otomatis karena berada di layer yang lebih rendah.
+ */
+.auth-input:focus-visible {
+  outline: none;
 }

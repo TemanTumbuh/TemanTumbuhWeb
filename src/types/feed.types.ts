@@ -33,20 +33,26 @@ export interface Category {
   slug: string;
 }
 
-// Feed state
-export interface FeedState {
-  posts: Post[];
-  loading: boolean;
-  error: string | null;
-  activeCategory: string;
-}
-
 // Auth context type
 export interface AuthContextType {
   currentUser: User | null;
   isLoggedIn: boolean;
 
+  /**
+   * `false` selama SSR dan render hydration pertama — saat itu `currentUser`
+   * selalu null walaupun sebenarnya ada sesi. Tunggu `true` sebelum
+   * me-redirect berdasarkan status login.
+   */
+  isReady: boolean;
+
   login: (email: string, password: string) => Promise<User | null>;
 
   logout: () => void;
+
+  /**
+   * Perbarui sebagian data user yang sedang login (dipakai Edit Profil).
+   * Saat ini hanya menulis ke state + localStorage; nanti di PR integrasi
+   * profil ini yang memanggil `PATCH /api/users/:id`.
+   */
+  updateUser: (patch: Partial<User>) => void;
 }

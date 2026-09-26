@@ -80,6 +80,7 @@ export default function Home() {
               src="/images/hero.png"
               alt="Ilustrasi Teman Tumbuh"
               fill
+              sizes="(max-width: 768px) 100vw, 500px"
               className="object-contain lg:object-cover rounded-[48px] z-0"
               priority
             />
@@ -276,7 +277,7 @@ export default function Home() {
       </section>
 
       {/* Agenda Mendatang Section */}
-      <section className="bg-[#f6f9f5] w-full py-20 lg:py-28 mt-10">
+      <section id="agenda" className="bg-[#f6f9f5] w-full py-20 lg:py-28 mt-10">
         <motion.div
           initial="hidden"
           whileInView="visible"
