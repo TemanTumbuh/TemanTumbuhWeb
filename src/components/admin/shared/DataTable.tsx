@@ -3,6 +3,14 @@
 import React from "react";
 import type { TableColumn } from "@/types/admin.types";
 
+// Discriminator eksplisit — narrowing berbasis "render in col" lebih andal
+// daripada cek truthy langsung untuk union generik seperti TableColumn<T>.
+function hasRender<T>(
+  col: TableColumn<T>,
+): col is Extract<TableColumn<T>, { render: (row: T) => React.ReactNode }> {
+  return "render" in col && typeof col.render === "function";
+}
+
 interface DataTableProps<T extends { id: string }> {
   title?: string;
   columns: TableColumn<T>[];
@@ -74,9 +82,7 @@ export default function DataTable<T extends { id: string }>({
                 >
                   {columns.map((col) => (
                     <td key={col.key} className={`px-6 py-4 ${col.className || ""}`}>
-                      {col.render
-                        ? col.render(row)
-                        : String((row as Record<string, unknown>)[col.key] ?? "")}
+                      {hasRender(col) ? col.render(row) : String(row[col.key] ?? "")}
                     </td>
                   ))}
                 </tr>

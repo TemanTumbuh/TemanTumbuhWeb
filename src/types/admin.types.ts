@@ -77,12 +77,24 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
-export interface TableColumn<T> {
-  key: string;
-  header: string;
-  render?: (row: T) => ReactNode;
-  className?: string;
-}
+// Kolom yang menunjuk field asli T boleh tanpa render (dirender via
+// String(row[key])). Kolom sintetis (gabungan beberapa field, mis. "actions"
+// atau "member") WAJIB menyediakan render — mencegah DataTable perlu
+// melakukan cast (row as Record<string, unknown>)[col.key] yang tidak type-safe
+// (lihat audit C9). Semua pemakaian saat ini sudah mematuhi aturan ini.
+export type TableColumn<T> =
+  | {
+      key: Extract<keyof T, string>;
+      header: string;
+      render?: (row: T) => ReactNode;
+      className?: string;
+    }
+  | {
+      key: string;
+      header: string;
+      render: (row: T) => ReactNode;
+      className?: string;
+    };
 
 export interface AdminUserRow {
   id: string;
@@ -137,11 +149,6 @@ export interface GalleryStats {
   storageUsed: string;
   published: number;
   lastSync: string;
-}
-
-export interface ProfileContentTab {
-  id: "about" | "agenda" | "vision";
-  label: string;
 }
 
 export interface ProfileContent {

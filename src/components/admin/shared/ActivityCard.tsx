@@ -4,9 +4,11 @@ import React from "react";
 import { motion } from "framer-motion";
 
 interface ActivityCardProps {
+  // "avatar" sengaja tidak ada di sini — komponen ini merepresentasikan
+  // aktivitas lewat ikon berwarna per "type", bukan avatar pengguna
+  // (lihat audit C8; field ini pernah dideklarasikan tapi tak pernah dirender).
   user: {
     name: string;
-    avatar?: string;
   };
   action: string;
   timestamp: string;

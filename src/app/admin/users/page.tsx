@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import UserAvatar from "@/components/UserAvatar";
 import { Download, Eye, Pencil, Trash2, UserPlus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatsCard from "@/components/admin/shared/StatsCard";
@@ -11,7 +11,7 @@ import Pagination from "@/components/admin/shared/Pagination";
 import FilterBar from "@/components/admin/shared/FilterBar";
 import ConfirmDialog from "@/components/admin/shared/ConfirmDialog";
 import { getUserStats, getUsers, deleteUser } from "@/lib/api/admin/mocks/usersMocks";
-import type { AdminUserRow, UserManagementStats, PaginationMeta } from "@/types/admin.types";
+import type { AdminUserRow, UserManagementStats, PaginationMeta, TableColumn } from "@/types/admin.types";
 
 export default function UserManagementPage() {
   const [stats, setStats] = useState<UserManagementStats | null>(null);
@@ -48,15 +48,13 @@ export default function UserManagementPage() {
     fetchUsers(meta.page);
   };
 
-  const columns = [
+  const columns: TableColumn<AdminUserRow>[] = [
     {
       key: "member",
       header: "Member",
       render: (row: AdminUserRow) => (
         <div className="flex items-center gap-3">
-          <div className="relative h-9 w-9 overflow-hidden rounded-full">
-            <Image src={row.avatar} alt={row.name} fill className="object-cover" />
-          </div>
+          <UserAvatar src={row.avatar} name={row.name} size={36} />
           <div>
             <p className="font-semibold text-heading">{row.name}</p>
             <p className="text-xs text-muted">{row.email}</p>
@@ -84,15 +82,24 @@ export default function UserManagementPage() {
       header: "Aksi",
       render: (row: AdminUserRow) => (
         <div className="flex items-center gap-2">
-          <button type="button" className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary">
+          <button
+            type="button"
+            aria-label={`Lihat detail ${row.name}`}
+            className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary"
+          >
             <Eye size={16} />
           </button>
-          <button type="button" className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary">
+          <button
+            type="button"
+            aria-label={`Ubah ${row.name}`}
+            className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary"
+          >
             <Pencil size={16} />
           </button>
           <button
             type="button"
             onClick={() => setDeleteId(row.id)}
+            aria-label={`Hapus ${row.name}`}
             className="rounded-lg p-1.5 text-muted hover:bg-red-50 hover:text-red-600"
           >
             <Trash2 size={16} />

@@ -27,6 +27,7 @@ export default function FilterBar({ filters, actions }: FilterBarProps) {
           <select
             key={filter.id}
             value={filter.value}
+            aria-label={filter.label}
             onChange={(e) => filter.onChange(e.target.value)}
             className="rounded-lg border border-admin-border bg-white px-3 py-2 text-sm text-[#556658] focus:outline-none focus:ring-2 focus:ring-primary"
           >

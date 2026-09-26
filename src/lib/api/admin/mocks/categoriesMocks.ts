@@ -29,6 +29,11 @@ export async function getCategories(params?: {
 
 export async function createCategory(data: Omit<FeedCategory, "id">): Promise<FeedCategory> {
   await new Promise((r) => setTimeout(r, 300));
+  // Meniru backend nyata (409 Conflict): slug adalah identitas unik kategori
+  // yang dipakai di URL/filter feed.
+  if (categories.some((c) => c.slug === data.slug)) {
+    throw new Error(`Slug "${data.slug}" sudah dipakai kategori lain.`);
+  }
   const newCat: FeedCategory = { ...data, id: String(Date.now()) };
   categories = [newCat, ...categories];
   return newCat;

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import StatsCard from "@/components/admin/shared/StatsCard";
 import ActivityCard from "@/components/admin/shared/ActivityCard";
@@ -25,6 +26,33 @@ import {
   getHighlyActiveUsers,
 } from "@/lib/api/admin/mocks/dashboardMocks";
 import type { DashboardStats, RecentActivity, AgendaItem, ActiveUser } from "@/types/admin.types";
+import { formatDate } from "@/lib/feedHelpers";
+
+function getActivityIcon(type: RecentActivity["type"]) {
+  switch (type) {
+    case "comment":
+      return <MessageCircle size={16} />;
+    case "post":
+      return <Zap size={16} />;
+    case "join":
+      return <UserPlus size={16} />;
+    default:
+      return <Eye size={16} />;
+  }
+}
+
+/**
+ * "Oct 24" → { month: "Oct", dayOfMonth: "24" }. Sebelumnya kartu agenda
+ * mengambil kata pertama (`split(" ")[0]`) sebagai angka besar, sehingga yang
+ * tampil "Oct", bukan tanggalnya. Token angka dicari eksplisit supaya urutan
+ * "24 Oct" pun tetap benar.
+ */
+function splitAgendaDate(date: string) {
+  const parts = date.trim().split(/\s+/);
+  const dayOfMonth = parts.find((p) => /^\d{1,2}$/.test(p)) ?? "";
+  const month = parts.find((p) => p !== dayOfMonth) ?? "";
+  return { month, dayOfMonth };
+}
 
 const CHART_DATA = [
   { day: "Mon", value: 65 },
@@ -55,7 +83,12 @@ export default function AdminDashboard() {
           ]);
 
         setStats(statsData);
-        setActivities(activitiesData);
+        // Terbaru di atas — data dari sumber tidak dijamin terurut.
+        setActivities(
+          [...activitiesData].sort(
+            (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+          ),
+        );
         setAgenda(agendaData);
         setActiveUsers(usersData);
       } catch (error) {
@@ -168,7 +201,8 @@ export default function AdminDashboard() {
             label="Unresolved Tickets"
             value={stats?.unsolvedTickets || 0}
             change="-2%"
-            changeColor="negative"
+            // Tiket belum selesai BERKURANG = kabar baik → hijau, bukan merah.
+            changeColor="positive"
             progress={35}
             icon={<AlertCircle size={24} />}
           />
@@ -184,13 +218,30 @@ export default function AdminDashboard() {
           </select>
         </div>
 
-        <div className="flex h-48 items-end justify-between gap-4 px-4">
-          {CHART_DATA.map((bar) => (
-            <div key={bar.day} className="flex flex-1 flex-col items-center gap-2">
-              <div
-                className="w-full max-w-12 rounded-t-lg bg-primary/80 transition hover:bg-primary"
-                style={{ height: `${bar.value}%` }}
-              />
+        {/*
+          Tinggi bar berupa persen, jadi induknya WAJIB punya tinggi pasti.
+          Sebelumnya kolom tiap hari tidak punya tinggi (hanya setinggi label),
+          sehingga `height: 65%` terhitung 0px dan grafik tampak kosong.
+          Sekarang: kolom h-full → area bar flex-1 (relative) → bar absolute
+          dengan tinggi persen terhadap area itu.
+        */}
+        <div
+          role="img"
+          aria-label={`Aktivitas mingguan: ${CHART_DATA.map((b) => `${b.day} ${b.value}`).join(", ")}`}
+          className="flex h-48 items-end justify-between gap-4 px-4"
+        >
+          {CHART_DATA.map((bar, i) => (
+            <div key={bar.day} className="flex h-full flex-1 flex-col items-center gap-2">
+              <div className="relative w-full flex-1">
+                <motion.div
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ delay: 0.3 + i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  title={`${bar.day}: ${bar.value}`}
+                  className="absolute inset-x-0 bottom-0 mx-auto max-w-12 origin-bottom rounded-t-lg bg-primary/80 transition-colors hover:bg-primary"
+                  style={{ height: `${bar.value}%` }}
+                />
+              </div>
               <span className="text-xs text-muted">{bar.day}</span>
             </div>
           ))}
@@ -213,33 +264,16 @@ export default function AdminDashboard() {
           </div>
 
           <div className="space-y-2">
-            {activities.map((activity) => {
-              const getActivityIcon = () => {
-                switch (activity.type) {
-                  case "comment":
-                    return <MessageCircle size={16} />;
-                  case "post":
-                    return <Zap size={16} />;
-                  case "join":
-                    return <UserPlus size={16} />;
-                  default:
-                    return <Eye size={16} />;
-                }
-              };
-
-              return (
-                <ActivityCard
-                  key={activity.id}
-                  user={activity.user}
-                  action={activity.action}
-                  timestamp={`${Math.floor(
-                    (Date.now() - activity.timestamp.getTime()) / (60 * 1000),
-                  )} minutes ago`}
-                  icon={getActivityIcon()}
-                  type={activity.type}
-                />
-              );
-            })}
+            {activities.map((activity) => (
+              <ActivityCard
+                key={activity.id}
+                user={activity.user}
+                action={activity.action}
+                timestamp={formatDate(activity.timestamp)}
+                icon={getActivityIcon(activity.type)}
+                type={activity.type}
+              />
+            ))}
           </div>
         </motion.div>
 
@@ -247,21 +281,27 @@ export default function AdminDashboard() {
           <div className="rounded-3xl border border-admin-border bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-bold text-heading">Upcoming Agenda</h3>
-              <a href="/admin/agenda" className="text-xs font-semibold text-primary hover:underline">
+              <Link href="/admin/agenda" className="text-xs font-semibold text-primary hover:underline">
                 Full Calendar
-              </a>
+              </Link>
             </div>
 
             <div className="space-y-4">
-              {agenda.map((item) => (
+              {agenda.map((item) => {
+                const { month, dayOfMonth } = splitAgendaDate(item.date);
+
+                return (
                 <div
                   key={item.id}
                   className="rounded-lg border border-[#c2e4c9] bg-[#f0f8f2] p-3"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="shrink-0 text-center">
-                      <p className="text-2xl font-bold text-primary">
-                        {item.date.split(" ")[0]}
+                    <div className="w-11 shrink-0 text-center">
+                      <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted">
+                        {month}
+                      </p>
+                      <p className="text-2xl font-bold leading-tight text-primary">
+                        {dayOfMonth}
                       </p>
                       <p className="text-xs font-semibold text-muted">{item.day}</p>
                     </div>
@@ -271,16 +311,17 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
           <div className="rounded-3xl border border-admin-border bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-bold text-heading">Highly Active Users</h3>
-              <a href="/admin/users" className="text-xs font-semibold text-primary hover:underline">
+              <Link href="/admin/users" className="text-xs font-semibold text-primary hover:underline">
                 Manage All
-              </a>
+              </Link>
             </div>
 
             <div className="overflow-x-auto">

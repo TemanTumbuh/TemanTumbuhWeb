@@ -128,6 +128,11 @@ export default function FaqManagementPage() {
                   <button
                     type="button"
                     onClick={() => handleDelete(faq.id)}
+                    aria-label={
+                      faq.question
+                        ? `Hapus pertanyaan: ${faq.question}`
+                        : "Hapus pertanyaan"
+                    }
                     className="rounded-lg p-2 text-muted hover:bg-red-50 hover:text-red-600"
                   >
                     <Trash2 size={16} />

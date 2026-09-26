@@ -11,20 +11,26 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { currentUser, isLoggedIn } = useAuth();
+  const { currentUser, isLoggedIn, isReady } = useAuth();
   const router = useRouter();
   const isAdmin = isLoggedIn && currentUser?.role === "admin";
 
   useEffect(() => {
-    if (!isLoggedIn || currentUser?.role !== "admin") {
+    // Selama hydration sesi belum terbaca (currentUser masih null) — jangan
+    // redirect dulu, atau admin yang sudah login ikut terlempar ke /login.
+    if (isReady && !isAdmin) {
       router.push("/login");
     }
-  }, [isLoggedIn, currentUser, router]);
+  }, [isReady, isAdmin, router]);
 
   if (!isAdmin) {
     return (
       <div className="flex h-screen items-center justify-center bg-admin-bg">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div
+          role="status"
+          aria-label="Memuat"
+          className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+        />
       </div>
     );
   }
@@ -33,11 +39,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="flex h-screen bg-admin-bg">
       <AdminSidebar />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <AdminHeader />
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl p-6">{children}</div>
+          <div className="mx-auto max-w-7xl p-4 sm:p-6">{children}</div>
         </main>
       </div>
     </div>

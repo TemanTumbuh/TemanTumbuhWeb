@@ -7,14 +7,16 @@ import DataTable from "@/components/admin/shared/DataTable";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
 import Pagination from "@/components/admin/shared/Pagination";
 import ConfirmDialog from "@/components/admin/shared/ConfirmDialog";
+import CategoryFormDialog from "@/components/admin/categories/CategoryFormDialog";
 import { getCategories, deleteCategory, createCategory } from "@/lib/api/admin/mocks/categoriesMocks";
-import type { FeedCategory, PaginationMeta } from "@/types/admin.types";
+import type { FeedCategory, PaginationMeta, TableColumn } from "@/types/admin.types";
 
 export default function FeedCategoriesPage() {
   const [categories, setCategories] = useState<FeedCategory[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({ page: 1, perPage: 8, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const fetchCategories = useCallback(async (page = 1) => {
     setLoading(true);
@@ -31,14 +33,11 @@ export default function FeedCategoriesPage() {
     fetchCategories(1);
   }, [fetchCategories]);
 
-  const handleCreate = async () => {
-    await createCategory({
-      name: "New Category",
-      slug: "new-category",
-      description: "Description for new category",
-      status: "draft",
-      color: "#3a5a40",
-    });
+  // Error (mis. slug duplikat) sengaja tidak ditangkap di sini — dialog yang
+  // menampilkannya di form.
+  const handleCreate = async (data: Omit<FeedCategory, "id">) => {
+    await createCategory(data);
+    setIsCreateOpen(false);
     fetchCategories(1);
   };
 
@@ -49,7 +48,7 @@ export default function FeedCategoriesPage() {
     fetchCategories(meta.page);
   };
 
-  const columns = [
+  const columns: TableColumn<FeedCategory>[] = [
     {
       key: "name",
       header: "Category Name",
@@ -78,15 +77,24 @@ export default function FeedCategoriesPage() {
       header: "Actions",
       render: (row: FeedCategory) => (
         <div className="flex items-center gap-2">
-          <button type="button" className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary">
+          <button
+            type="button"
+            aria-label={`Lihat detail kategori ${row.name}`}
+            className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary"
+          >
             <Eye size={16} />
           </button>
-          <button type="button" className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary">
+          <button
+            type="button"
+            aria-label={`Ubah kategori ${row.name}`}
+            className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary"
+          >
             <Pencil size={16} />
           </button>
           <button
             type="button"
             onClick={() => setDeleteId(row.id)}
+            aria-label={`Hapus kategori ${row.name}`}
             className="rounded-lg p-1.5 text-muted hover:bg-red-50 hover:text-red-600"
           >
             <Trash2 size={16} />
@@ -104,7 +112,7 @@ export default function FeedCategoriesPage() {
         actions={
           <button
             type="button"
-            onClick={handleCreate}
+            onClick={() => setIsCreateOpen(true)}
             className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover"
           >
             <Plus size={16} />
@@ -131,6 +139,13 @@ export default function FeedCategoriesPage() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteId(null)}
       />
+
+      {isCreateOpen && (
+        <CategoryFormDialog
+          onSubmit={handleCreate}
+          onClose={() => setIsCreateOpen(false)}
+        />
+      )}
     </div>
   );
 }

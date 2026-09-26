@@ -8,9 +8,6 @@ interface StatsCardProps {
   value: string | number;
   change?: string;
   icon?: React.ReactNode;
-  trend?: "up" | "down" | "stable";
-  bgColor?: string;
-  textColor?: string;
   changeColor?: "positive" | "negative" | "neutral";
   progress?: number;
 }
@@ -23,10 +20,12 @@ export default function StatsCard({
   changeColor = "neutral",
   progress,
 }: StatsCardProps) {
+  // `changeColor` menyatakan apakah perubahan itu KABAR BAIK atau buruk, bukan
+  // arah angkanya — mis. tiket turun "-2%" tetap "positive".
   const getTrendColor = () => {
-    if (changeColor === "positive") return "text-green-600";
-    if (changeColor === "negative") return "text-red-600";
-    return "text-primary";
+    if (changeColor === "positive") return "bg-green-50 text-green-600";
+    if (changeColor === "negative") return "bg-red-50 text-red-600";
+    return "bg-[#f0f8f2] text-primary";
   };
 
   const progressColor =
@@ -49,7 +48,7 @@ export default function StatsCard({
           <div className="flex items-baseline gap-2">
             <h3 className="text-3xl font-bold text-heading">{value}</h3>
             {change && (
-              <span className={`rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold ${getTrendColor()}`}>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getTrendColor()}`}>
                 {change}
               </span>
             )}

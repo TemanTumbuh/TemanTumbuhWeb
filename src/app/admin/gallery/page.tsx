@@ -10,7 +10,7 @@ import StatusBadge from "@/components/admin/shared/StatusBadge";
 import Pagination from "@/components/admin/shared/Pagination";
 import ConfirmDialog from "@/components/admin/shared/ConfirmDialog";
 import { getGalleryStats, getGalleryAssets, deleteGalleryAsset } from "@/lib/api/admin/mocks/galleryMocks";
-import type { GalleryAsset, GalleryStats, PaginationMeta } from "@/types/admin.types";
+import type { GalleryAsset, GalleryStats, PaginationMeta, TableColumn } from "@/types/admin.types";
 
 export default function GalleryManagementPage() {
   const [stats, setStats] = useState<GalleryStats | null>(null);
@@ -47,14 +47,14 @@ export default function GalleryManagementPage() {
     fetchAssets(meta.page);
   };
 
-  const columns = [
+  const columns: TableColumn<GalleryAsset>[] = [
     {
       key: "name",
       header: "Asset Name",
       render: (row: GalleryAsset) => (
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 overflow-hidden rounded-lg">
-            <Image src={row.thumbnail} alt={row.name} fill className="object-cover" />
+            <Image src={row.thumbnail} alt="" aria-hidden="true" fill sizes="40px" className="object-cover" />
           </div>
           <span className="font-medium text-heading">{row.name}</span>
         </div>
@@ -73,15 +73,24 @@ export default function GalleryManagementPage() {
       header: "Action",
       render: (row: GalleryAsset) => (
         <div className="flex items-center gap-2">
-          <button type="button" className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary">
+          <button
+            type="button"
+            aria-label={`Lihat ${row.name}`}
+            className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary"
+          >
             <Eye size={16} />
           </button>
-          <button type="button" className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary">
+          <button
+            type="button"
+            aria-label={`Ubah ${row.name}`}
+            className="rounded-lg p-1.5 text-muted hover:bg-admin-bg hover:text-primary"
+          >
             <Pencil size={16} />
           </button>
           <button
             type="button"
             onClick={() => setDeleteId(row.id)}
+            aria-label={`Hapus ${row.name}`}
             className="rounded-lg p-1.5 text-muted hover:bg-red-50 hover:text-red-600"
           >
             <Trash2 size={16} />
