@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import UserAvatar from "@/components/UserAvatar";
 import { Download, Eye, Pencil, Trash2, UserPlus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
@@ -20,22 +21,39 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("all");
   const [sortFilter, setSortFilter] = useState("recent");
+  const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  // Request baru dikirim setelah admin berhenti mengetik 300ms.
+  const debouncedSearch = useDebouncedValue(search, 300);
+  // Penanda request terakhir — respons dari request lama yang datang
+  // belakangan (mis. saat mengetik cepat) diabaikan supaya tabel tidak
+  // menampilkan hasil untuk kata kunci yang sudah usang.
+  const latestRequest = useRef(0);
+
+  // Statistik tidak bergantung pada filter/pencarian — cukup dimuat sekali.
+  useEffect(() => {
+    getUserStats().then(setStats);
+  }, []);
+
   const fetchUsers = useCallback(async (page = 1) => {
+    const requestId = ++latestRequest.current;
     setLoading(true);
     try {
-      const [statsData, usersData] = await Promise.all([
-        getUserStats(),
-        getUsers({ role: roleFilter, sort: sortFilter, page, perPage: 10 }),
-      ]);
-      setStats(statsData);
+      const usersData = await getUsers({
+        q: debouncedSearch,
+        role: roleFilter,
+        sort: sortFilter,
+        page,
+        perPage: 10,
+      });
+      if (requestId !== latestRequest.current) return;
       setUsers(usersData.data);
       setMeta(usersData.meta);
     } finally {
-      setLoading(false);
+      if (requestId === latestRequest.current) setLoading(false);
     }
-  }, [roleFilter, sortFilter]);
+  }, [debouncedSearch, roleFilter, sortFilter]);
 
   useEffect(() => {
     fetchUsers(1);
@@ -134,6 +152,12 @@ export default function UserManagementPage() {
 
       <div className="space-y-4">
         <FilterBar
+          search={{
+            value: search,
+            onChange: setSearch,
+            label: "Cari anggota berdasarkan nama atau email",
+            placeholder: "Cari nama atau email…",
+          }}
           filters={[
             {
               id: "role",
@@ -168,7 +192,16 @@ export default function UserManagementPage() {
           }
         />
 
-        <DataTable columns={columns} data={users} loading={loading} />
+        <DataTable
+          columns={columns}
+          data={users}
+          loading={loading}
+          emptyMessage={
+            debouncedSearch.trim()
+              ? `Tidak ada anggota yang cocok dengan "${debouncedSearch.trim()}".`
+              : "Belum ada anggota."
+          }
+        />
 
         <Pagination
           page={meta.page}

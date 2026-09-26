@@ -27,6 +27,8 @@ export async function getUserStats(): Promise<UserManagementStats> {
 }
 
 export async function getUsers(params?: {
+  /** Cari di nama atau email (tidak peka huruf besar/kecil). */
+  q?: string;
   role?: string;
   sort?: string;
   page?: number;
@@ -35,6 +37,16 @@ export async function getUsers(params?: {
   await new Promise((r) => setTimeout(r, 500));
 
   let filtered = [...ALL_USERS];
+
+  // Kontrak yang sama diharapkan dari backend: GET /api/users?q=...
+  // (parameter `q` belum ada — perlu diminta ke tim BE).
+  const q = params?.q?.trim().toLowerCase();
+  if (q) {
+    filtered = filtered.filter(
+      (u) =>
+        u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
+    );
+  }
 
   if (params?.role && params.role !== "all") {
     filtered = filtered.filter((u) => u.role === params.role);
