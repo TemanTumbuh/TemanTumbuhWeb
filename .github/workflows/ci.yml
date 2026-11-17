@@ -1,9 +1,16 @@
 name: CI
 
+# Dinonaktifkan atas arahan tim DevOps: workflow ini TIDAK lagi berjalan
+# otomatis saat push maupun pull request. Masih bisa dijalankan manual dari
+# tab Actions → CI → "Run workflow".
+#
+# Untuk mengaktifkan kembali, ganti blok `on:` di bawah menjadi:
+#   on:
+#     push:
+#       branches: [main, staging, dev]
+#     pull_request:
 on:
-  push:
-    branches: [main, staging, dev]
-  pull_request:
+  workflow_dispatch:
 
 # Batalkan run lama pada branch yang sama saat ada push baru.
 concurrency:
