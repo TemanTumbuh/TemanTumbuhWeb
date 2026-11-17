@@ -1,4 +1,4 @@
-import { Category, User, Post } from "@/types/feed.types";
+import type { User, MockPost } from "@/types/feed.types";
 
 // Dummy users
 export const DUMMY_USERS: User[] = [
@@ -49,23 +49,9 @@ export const DUMMY_USERS: User[] = [
   },
 ];
 
-// Dummy categories
-export const DUMMY_CATEGORIES: Category[] = [
-  { id: "cat-1", name: "Semua Tumbuhan", icon: "Leaf", slug: "semua" },
-  { id: "cat-2", name: "Growth", icon: "TrendingUp", slug: "growth" },
-  { id: "cat-3", name: "Karir", icon: "Briefcase", slug: "karir" },
-  { id: "cat-4", name: "Self-Care", icon: "Heart", slug: "self-care" },
-  {
-    id: "cat-5",
-    name: "Self-Development",
-    icon: "Lightbulb",
-    slug: "self-development",
-  },
-  { id: "cat-6", name: "Creative", icon: "Palette", slug: "creative" },
-];
-
 // Dummy posts with images from internet
-export const DUMMY_POSTS: Post[] = [
+// Dummy posts — hanya untuk riwayat postingan di halaman profil (sampai PR5).
+export const DUMMY_POSTS: MockPost[] = [
   {
     id: "post-1",
     userId: "user-1",

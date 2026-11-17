@@ -1,14 +1,14 @@
-import { Post, Category, User } from "@/types/feed.types";
-import {
-  DUMMY_POSTS,
-  DUMMY_CATEGORIES,
-  DUMMY_USERS,
-} from "@/config/feedConfig";
+import type { MockPost, User } from "@/types/feed.types";
+import { DUMMY_POSTS, DUMMY_USERS } from "@/config/feedConfig";
 
 /**
- * Format date to relative time (e.g., "2 jam lalu", "1 hari lalu")
+ * Format waktu relatif ("2 jam lalu", "1 hari lalu").
+ * Menerima `Date` atau string ISO dari backend (mis. `post.createdAt`).
  */
-export const formatDate = (date: Date): string => {
+export const formatDate = (input: Date | string): string => {
+  const date = input instanceof Date ? input : new Date(input);
+  if (Number.isNaN(date.getTime())) return "";
+
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
@@ -37,41 +37,8 @@ export const truncateText = (text: string, length: number): string => {
 };
 
 /**
- * Generate mock posts - currently returns dummy data
- * Ready to be replaced with: await fetch(`/api/posts`)
- */
-export const generateMockPosts = (
-  _count?: number,
-  _categories?: Category[],
-  _users?: User[],
-): Post[] => {
-  // For now: return all dummy posts
-  // When backend ready: fetch from API instead
-  return DUMMY_POSTS;
-};
-
-/**
- * Get categories
- */
-export const getCategories = (): Category[] => {
-  // For now: return dummy categories
-  // When backend ready: fetch from /api/categories
-  return DUMMY_CATEGORIES;
-};
-
-/**
- * Filter posts by category
- */
-export const filterPostsByCategory = (
-  posts: Post[],
-  categorySlug: string,
-): Post[] => {
-  if (categorySlug === "semua") return posts;
-  return posts.filter((post) => post.category === categorySlug);
-};
-
-/**
- * Get suggested users (excluding current user)
+ * Saran member di sidebar feed. Masih dummy: backend belum punya fitur
+ * follow/saran (Fase 2, FE-27).
  */
 export const getSuggestedUsers = (excludeUserId?: string): User[] => {
   return DUMMY_USERS.filter((user) => user.id !== excludeUserId).slice(0, 4);
@@ -81,9 +48,9 @@ export const getSuggestedUsers = (excludeUserId?: string): User[] => {
  * Postingan milik satu user, terbaru lebih dulu.
  *
  * Masih dari data dummy: backend belum menyediakan filter per-user di
- * `GET /api/v1/posts` (query yang ada baru limit/cursor/categoryId).
+ * `GET /api/v1/posts` (gap N7). Diganti saat integrasi profil (PR5).
  */
-export const getPostsByUser = (userId: string): Post[] => {
+export const getPostsByUser = (userId: string): MockPost[] => {
   return DUMMY_POSTS.filter((post) => post.userId === userId).sort(
     (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
   );
@@ -114,15 +81,4 @@ export const getProfileStats = (userId: string): ProfileStats => {
     followers: 120 + (seed % 880),
     following: 40 + (seed % 260),
   };
-};
-
-/**
- * Mock API call - ready for backend integration
- */
-export const mockApiCall = async <T>(delayMs: number = 300): Promise<T> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({} as T);
-    }, delayMs);
-  });
 };

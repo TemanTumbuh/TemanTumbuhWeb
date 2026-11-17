@@ -10,8 +10,12 @@ export interface User {
   role: "user" | "admin";
 }
 
-// Post interface
-export interface Post {
+/**
+ * Post DUMMY — hanya dipakai riwayat postingan di halaman profil sampai
+ * integrasi profil (PR5) memakai `GET /api/v1/posts?userId=` (gap N7).
+ * Feed sudah memakai `Post` dari `@/types/post.types` (bentuk backend).
+ */
+export interface MockPost {
   id: string;
   userId: string;
   user: User;
@@ -23,14 +27,6 @@ export interface Post {
   comments: number;
   shares: number;
   isLiked?: boolean;
-}
-
-// Category interface
-export interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  slug: string;
 }
 
 // Auth context type
