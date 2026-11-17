@@ -12,6 +12,8 @@
  */
 
 const REFRESH_KEY = "tt.refreshToken";
+/** Diekspor supaya AuthContext bisa mendengar logout dari tab lain. */
+export const REFRESH_TOKEN_KEY = REFRESH_KEY;
 const AUTH_COOKIE = "tt.auth";
 
 let accessToken: string | null = null;

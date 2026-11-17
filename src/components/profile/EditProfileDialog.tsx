@@ -82,8 +82,8 @@ export default function EditProfileDialog({
         Edit Profil
       </h2>
       <p className="mt-1 text-sm text-[#657668]">
-        Perubahan tersimpan di perangkat ini dulu selama profil belum
-        tersambung ke server.
+        Perubahan belum tersimpan ke server dan hilang saat halaman dimuat
+        ulang. Penyimpanan profil menyusul di integrasi profil.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-5 space-y-4">

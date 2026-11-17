@@ -40,8 +40,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [isLoggedIn, currentUser]);
 
-  const logout = useCallback(() => {
-    authLogout();
+  const logout = useCallback(async () => {
+    await authLogout();
     router.push("/login");
   }, [authLogout, router]);
 

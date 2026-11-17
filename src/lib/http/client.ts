@@ -44,6 +44,22 @@ async function parseBody(res: Response): Promise<unknown> {
   }
 }
 
+/**
+ * Apakah response berarti access token perlu diperbarui.
+ *
+ * Standarnya cukup `401`. SEMENTARA (gap N1): middleware `authenticate`
+ * backend membalas `403` + "Token tidak valid atau sudah kedaluwarsa." untuk
+ * token kedaluwarsa. `403` karena izin kurang (`authorize`) pesannya lain dan
+ * tetap diteruskan sebagai error biasa. Hapus cabang 403 setelah backend
+ * membalas 401.
+ */
+function isExpiredSession(status: number, body: unknown): boolean {
+  if (status === 401) return true;
+  if (status !== 403) return false;
+  const message = (body as { message?: unknown } | null)?.message;
+  return typeof message === "string" && /token/i.test(message);
+}
+
 async function doRequest<T>(
   path: string,
   opts: RequestOptions,
@@ -89,8 +105,10 @@ async function doRequest<T>(
     throw ApiError.network();
   }
 
+  const parsed = await parseBody(res);
+
   // Access token kedaluwarsa → refresh sekali (single-flight), lalu ulangi.
-  if (res.status === 401 && auth && !isRetry) {
+  if (auth && !isRetry && isExpiredSession(res.status, parsed)) {
     try {
       await refreshAccessToken();
     } catch {
@@ -103,7 +121,6 @@ async function doRequest<T>(
     return doRequest<T>(path, opts, true);
   }
 
-  const parsed = await parseBody(res);
   if (!res.ok) throw ApiError.fromResponse(res.status, parsed);
   return parsed as T;
 }
