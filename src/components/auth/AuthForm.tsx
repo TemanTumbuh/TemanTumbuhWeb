@@ -6,6 +6,41 @@ import { getAuthFields } from "@/config/authFields";
 import { getAuthConfig } from "@/config/authConfig";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
+import { ApiError } from "@/lib/http";
+
+function validateRegister(formData: FormData): string | null {
+  const username = String(formData.get("username") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (username.length < 3 || username.length > 50) {
+    return "Nama pengguna harus 3–50 karakter.";
+  }
+  if (password.length < 8 || password.length > 72) {
+    return "Kata sandi harus 8–72 karakter.";
+  }
+  if (password !== confirmPassword) {
+    return "Konfirmasi kata sandi tidak cocok.";
+  }
+  return null;
+}
+
+// Pesan validasi backend (Zod) masih berbahasa Inggris; terjemahkan per field.
+const FIELD_ERRORS: Record<string, string> = {
+  username: "Nama pengguna harus 3–50 karakter.",
+  email: "Format email tidak valid.",
+  password: "Kata sandi harus 8–72 karakter.",
+  confirmPassword: "Konfirmasi kata sandi tidak cocok.",
+};
+
+function toErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    const field = err.details.find((d) => d.field && FIELD_ERRORS[d.field]);
+    if (field?.field) return FIELD_ERRORS[field.field];
+    return err.message;
+  }
+  return err instanceof Error ? err.message : "Terjadi kesalahan";
+}
 
 interface AuthFormProps {
   type: "login" | "register" | "reset-password" | "forgot-password";
@@ -25,6 +60,16 @@ export default function AuthForm({ type, onSubmit }: AuthFormProps) {
     if (!onSubmit) return;
 
     const formData = new FormData(e.currentTarget);
+
+    // Aturan yang sama dengan registerSchema backend — dicek di sini dulu supaya
+    // pesannya berbahasa Indonesia dan tidak perlu bolak-balik ke server.
+    if (type === "register") {
+      const clientError = validateRegister(formData);
+      if (clientError) {
+        setError(clientError);
+        return;
+      }
+    }
 
     // Validate password matching for reset-password type
     if (type === "reset-password") {
@@ -47,8 +92,7 @@ export default function AuthForm({ type, onSubmit }: AuthFormProps) {
     try {
       await onSubmit(formData);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Terjadi kesalahan";
-      setError(message);
+      setError(toErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +104,10 @@ export default function AuthForm({ type, onSubmit }: AuthFormProps) {
       onSubmit={handleSubmit}
     >
       {error && (
-        <div className="rounded-lg bg-red-50 px-3 py-2.5 text-[0.75rem] text-red-700 sm:px-4">
+        <div
+          role="alert"
+          className="rounded-lg bg-red-50 px-3 py-2.5 text-[0.75rem] text-red-700 sm:px-4"
+        >
           {error}
         </div>
       )}

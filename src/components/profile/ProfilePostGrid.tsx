@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 import { Heart, MessageCircle, Sprout } from "lucide-react";
-import type { Post } from "@/types/feed.types";
+import type { MockPost } from "@/types/feed.types";
 import { formatDate } from "@/lib/feedHelpers";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -24,7 +24,7 @@ const tile: Variants = {
 };
 
 interface ProfilePostGridProps {
-  posts: Post[];
+  posts: MockPost[];
 }
 
 export default function ProfilePostGrid({ posts }: ProfilePostGridProps) {

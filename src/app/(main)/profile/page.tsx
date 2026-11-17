@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Grid3x3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMounted } from "@/hooks/useMounted";
 import { getPostsByUser, getProfileStats } from "@/lib/feedHelpers";
 import type { User } from "@/types/feed.types";
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -36,17 +35,16 @@ function ProfileSkeleton() {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const mounted = useMounted();
-  const { currentUser, isLoggedIn, updateUser } = useAuth();
+  const { currentUser, isLoggedIn, isReady, updateUser } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  // Sesi baru terbaca di client (localStorage), jadi redirect menunggu mount
-  // supaya tidak menendang user keluar saat render server.
+  // Redirect menunggu sesi selesai dipulihkan (refresh token → /auth/me);
+  // sebelum itu currentUser selalu null walau user sebenarnya login.
   useEffect(() => {
-    if (mounted && !isLoggedIn) {
+    if (isReady && !isLoggedIn) {
       router.replace("/login");
     }
-  }, [mounted, isLoggedIn, router]);
+  }, [isReady, isLoggedIn, router]);
 
   const posts = useMemo(
     () => (currentUser ? getPostsByUser(currentUser.id) : []),
@@ -67,7 +65,7 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 pt-28 pb-20 sm:px-8 lg:pt-36">
-      {!mounted || !currentUser ? (
+      {!isReady || !currentUser ? (
         <ProfileSkeleton />
       ) : (
         <>

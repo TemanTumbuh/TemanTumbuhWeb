@@ -13,7 +13,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMounted } from "@/hooks/useMounted";
 import { useDismiss } from "@/hooks/useDismiss";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -27,23 +26,19 @@ const NAV_VIVID_DARK = "#1f6b39";
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isLoggedIn, currentUser, logout } = useAuth();
+  const { isLoggedIn, currentUser, logout, isReady } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  // Lihat audit C3 — sebelumnya `typeof window !== "undefined"` dievaluasi di
-  // body komponen sehingga bernilai berbeda antara render server (false) dan
-  // render client (true) pada pass yang sama, memicu hydration mismatch.
-  const mounted = useMounted();
 
   const toggleMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
     setIsMobileMenuOpen(false);
     setUserMenuOpen(false);
+    await logout();
     router.push("/");
   };
 
@@ -103,7 +98,12 @@ export default function Navbar() {
 
         {/* Right Section (Auth) */}
         <div className="hidden md:flex items-center gap-3">
-          {mounted && isLoggedIn && currentUser ? (
+          {/* Selama sesi dipulihkan (refresh token → /auth/me) tampilkan
+              placeholder, supaya tombol Masuk tidak berkedip untuk user yang
+              sebenarnya sudah login. */}
+          {!isReady ? (
+            <div aria-hidden="true" className="h-10 w-44 animate-pulse rounded-full bg-[#e1ebdc]/70" />
+          ) : isLoggedIn && currentUser ? (
             <div className="relative" ref={userMenuRef}>
               <button
                 type="button"
@@ -225,7 +225,9 @@ export default function Navbar() {
             ))}
           </div>
           <div className="flex flex-col gap-4">
-            {mounted && isLoggedIn && currentUser ? (
+            {!isReady ? (
+              <div aria-hidden="true" className="h-12 animate-pulse rounded-full bg-gray-100" />
+            ) : isLoggedIn && currentUser ? (
               <>
                 <div className="flex items-center gap-3 py-3 px-4 bg-gray-50 rounded-lg">
                   <UserAvatar src={currentUser.avatar} name={currentUser.name} size={40} />

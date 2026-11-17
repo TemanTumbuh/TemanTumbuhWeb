@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { Post } from "@/types/feed.types";
+import { ImageOff, Pin } from "lucide-react";
+import type { Post, PostMedia } from "@/types/post.types";
 import { formatDate } from "@/lib/feedHelpers";
+import { isAllowedImageSrc } from "@/lib/imageHosts";
 import PostActions from "./PostActions";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -12,87 +14,161 @@ interface PostCardProps {
   isLoggedIn: boolean;
 }
 
-export default function PostCard({ post, isLoggedIn }: PostCardProps) {
-  const getCategoryColor = (category: string): string => {
-    const colors: Record<string, string> = {
-      "self-care": "bg-pink-100 text-pink-700",
-      growth: "bg-blue-100 text-blue-700",
-      karir: "bg-purple-100 text-purple-700",
-      "self-development": "bg-yellow-100 text-yellow-700",
-      creative: "bg-orange-100 text-orange-700",
-      semua: "bg-green-100 text-green-700",
-    };
-    return colors[category] || "bg-gray-100 text-gray-700";
-  };
+const CATEGORY_COLORS: Record<string, string> = {
+  "self-care": "bg-pink-100 text-pink-700",
+  growth: "bg-blue-100 text-blue-700",
+  karir: "bg-purple-100 text-purple-700",
+  "self-development": "bg-yellow-100 text-yellow-700",
+  creative: "bg-orange-100 text-orange-700",
+};
 
-  const formatCategoryName = (category: string): string => {
-    return category
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
+/**
+ * 1 gambar → lebar penuh 16:9 · 2 gambar → dua kolom persegi ·
+ * 3 gambar → satu besar di kiri + dua bertumpuk di kanan.
+ */
+/**
+ * Gambar yang gagal dimuat (host diblokir jaringan, file hilang) diganti
+ * placeholder, bukan teks alt yang menumpuk di atas kotak kosong.
+ */
+function GalleryImage({ src, alt, sizes }: { src: string; alt: string; sizes: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <div
+        role="img"
+        aria-label={`${alt} (tidak dapat dimuat)`}
+        className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-gray-100 text-gray-400"
+      >
+        <ImageOff size={22} aria-hidden="true" />
+        <span className="text-xs">Gambar tidak dapat dimuat</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-all">
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      className="object-cover"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+function MediaGallery({ media, author }: { media: PostMedia[]; author: string }) {
+  // Hanya gambar dari host yang terdaftar di next.config — host lain membuat
+  // next/image melempar error dan menjatuhkan seluruh feed.
+  const images = media
+    .filter((m) => m.mediaType === "image" && isAllowedImageSrc(m.mediaUrl))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .slice(0, 3);
+
+  if (images.length === 0) return null;
+
+  const alt = (i: number) =>
+    images.length === 1
+      ? `Gambar dari postingan ${author}`
+      : `Gambar ${i + 1} dari ${images.length}, postingan ${author}`;
+
+  if (images.length === 1) {
+    return (
+      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
+        <GalleryImage
+          src={images[0].mediaUrl}
+          alt={alt(0)}
+          sizes="(max-width: 1024px) 100vw, 600px"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`grid gap-1.5 overflow-hidden rounded-lg ${
+        images.length === 2 ? "aspect-[2/1] grid-cols-2" : "aspect-video grid-cols-2 grid-rows-2"
+      }`}
+    >
+      {images.map((image, i) => (
+        <div
+          key={image.id}
+          className={`relative bg-gray-100 ${images.length === 3 && i === 0 ? "row-span-2" : ""}`}
+        >
+          <GalleryImage
+            src={image.mediaUrl}
+            alt={alt(i)}
+            sizes="(max-width: 1024px) 50vw, 300px"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function PostCard({ post, isLoggedIn }: PostCardProps) {
+  const authorName = post.author?.username ?? "Akun dihapus";
+
+  return (
+    <article className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-all">
       {/* Header */}
       <div className="p-5">
-        <div className="flex items-start justify-between">
-          <div className="flex gap-3 flex-1">
-            {/* Avatar */}
-            <UserAvatar src={post.user.avatar} name={post.user.name} size={48} />
+        <div className="flex gap-3">
+          <UserAvatar
+            src={post.author?.avatarUrl ?? undefined}
+            name={authorName}
+            size={48}
+          />
 
-            {/* User Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-gray-900 text-sm">
-                  {post.user.name}
-                </h3>
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <h3 className="truncate text-sm font-semibold text-gray-900">
+                {authorName}
+              </h3>
+              {post.category && (
                 <span
-                  className={`text-xs px-2.5 py-1 rounded-full font-medium ${getCategoryColor(post.category)}`}
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                    CATEGORY_COLORS[post.category.slug] ?? "bg-gray-100 text-gray-700"
+                  }`}
                 >
-                  {formatCategoryName(post.category)}
+                  {post.category.name}
                 </span>
-              </div>
-              <p className="text-xs text-gray-500">
-                {formatDate(post.timestamp)}
-              </p>
+              )}
+              {post.isPinned && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#eaf6ee] px-2.5 py-1 text-xs font-medium text-[#2f8f4e]">
+                  <Pin size={12} aria-hidden="true" />
+                  Disematkan
+                </span>
+              )}
             </div>
+            <time dateTime={post.createdAt} className="text-xs text-gray-500">
+              {formatDate(post.createdAt)}
+            </time>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-5 pb-3">
-        <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">
-          {post.content}
-        </p>
-      </div>
-
-      {/* Image */}
-      {post.image && (
-        <div className="px-5 pb-4">
-          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100">
-            <Image
-              src={post.image}
-              alt={`Gambar dari postingan ${post.user.name}`}
-              fill
-              sizes="(max-width: 1024px) 100vw, 600px"
-              className="object-cover"
-            />
-          </div>
+      {post.content && (
+        <div className="px-5 pb-3">
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-800">
+            {post.content}
+          </p>
         </div>
       )}
 
-      {/* Actions */}
+      {/* Media */}
+      {post.media.length > 0 && (
+        <div className="px-5 pb-4">
+          <MediaGallery media={post.media} author={authorName} />
+        </div>
+      )}
+
+      {/* Actions — like & komentar disambungkan di PR4 (feed tulis). */}
       <div className="px-5 pb-3">
-        <PostActions
-          post={post}
-          isLoggedIn={isLoggedIn}
-          onLike={() => console.log("Like:", post.id)}
-          onComment={() => console.log("Comment:", post.id)}
-          onShare={() => console.log("Share:", post.id)}
-        />
+        <PostActions post={post} isLoggedIn={isLoggedIn} />
       </div>
-    </div>
+    </article>
   );
 }

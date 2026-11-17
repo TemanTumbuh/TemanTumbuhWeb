@@ -1,23 +1,22 @@
 "use client";
 
 import React from "react";
-import { Heart, MessageCircle, Share2, MoreVertical } from "lucide-react";
-import { Post } from "@/types/feed.types";
+import { Heart, MessageCircle, MoreVertical } from "lucide-react";
+import type { Post } from "@/types/post.types";
 
 interface PostActionsProps {
   post: Post;
   isLoggedIn: boolean;
   onLike?: () => void;
   onComment?: () => void;
-  onShare?: () => void;
 }
 
+// Tombol share dihapus: backend tidak punya fitur share (Fase 2, FE-32).
 export default function PostActions({
   post,
   isLoggedIn,
   onLike,
   onComment,
-  onShare,
 }: PostActionsProps) {
   const actionButtonClass = (disabled: boolean) =>
     `flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
@@ -29,47 +28,39 @@ export default function PostActions({
   return (
     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
       <div className="flex items-center gap-2">
-        {/* Like Button */}
         <button
           type="button"
           onClick={onLike}
           disabled={!isLoggedIn}
+          aria-pressed={post.likedByMe ?? false}
           className={actionButtonClass(!isLoggedIn)}
-          aria-label={`Suka — ${post.likes} suka`}
-          title={!isLoggedIn ? "Login untuk like" : "Like post"}
+          aria-label={`Suka — ${post.likesCount} suka`}
+          title={!isLoggedIn ? "Masuk untuk menyukai" : "Suka"}
         >
-          <Heart size={18} />
-          <span className="text-sm font-medium">{post.likes}</span>
+          <Heart
+            size={18}
+            className={post.likedByMe ? "fill-red-500 text-red-500" : undefined}
+          />
+          <span className="text-sm font-medium tabular-nums">
+            {post.likesCount}
+          </span>
         </button>
 
-        {/* Comment Button */}
         <button
           type="button"
           onClick={onComment}
           disabled={!isLoggedIn}
           className={actionButtonClass(!isLoggedIn)}
-          aria-label={`Komentar — ${post.comments} komentar`}
-          title={!isLoggedIn ? "Login untuk comment" : "Comment post"}
+          aria-label={`Komentar — ${post.commentsCount} komentar`}
+          title={!isLoggedIn ? "Masuk untuk berkomentar" : "Komentar"}
         >
           <MessageCircle size={18} />
-          <span className="text-sm font-medium">{post.comments}</span>
-        </button>
-
-        {/* Share Button */}
-        <button
-          type="button"
-          onClick={onShare}
-          disabled={!isLoggedIn}
-          className={actionButtonClass(!isLoggedIn)}
-          aria-label={`Bagikan — ${post.shares} kali dibagikan`}
-          title={!isLoggedIn ? "Login untuk share" : "Share post"}
-        >
-          <Share2 size={18} />
-          <span className="text-sm font-medium">{post.shares}</span>
+          <span className="text-sm font-medium tabular-nums">
+            {post.commentsCount}
+          </span>
         </button>
       </div>
 
-      {/* Menu Button (3 dots) */}
       {isLoggedIn && (
         <button
           type="button"

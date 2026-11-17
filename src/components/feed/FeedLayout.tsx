@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-import CategorySidebar from "./CategorySidebar";
+import CategorySidebar, { ALL_CATEGORIES } from "./CategorySidebar";
 import FeedContent from "./FeedContent";
 import SuggestionsSidebar from "./SuggestionsSidebar";
 
@@ -16,9 +16,13 @@ import { getSuggestedUsers } from "@/lib/feedHelpers";
 export default function FeedLayout() {
   const { currentUser, isLoggedIn } = useAuth();
 
-  const { posts, loading, activeCategory, filterByCategory } = useFeedPosts();
+  // UI memakai slug (stabil & mudah dibaca); API butuh UUID kategori.
+  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES);
+  const { categories, isLoading: categoriesLoading } = useCategories();
+  const activeCategoryObj =
+    categories.find((category) => category.slug === activeCategory) ?? null;
 
-  const { categories } = useCategories();
+  const feed = useFeedPosts(activeCategoryObj?.id ?? null);
 
   const suggestedUsers = getSuggestedUsers(currentUser?.id);
 
@@ -42,8 +46,9 @@ export default function FeedLayout() {
           >
             <CategorySidebar
               categories={categories}
+              isLoading={categoriesLoading}
               activeCategory={activeCategory}
-              onSelectCategory={filterByCategory}
+              onSelectCategory={setActiveCategory}
             />
           </motion.div>
 
@@ -52,12 +57,20 @@ export default function FeedLayout() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12 }}
+            className="min-w-0"
           >
             <FeedContent
-              posts={posts}
+              posts={feed.posts}
               isLoggedIn={isLoggedIn}
               currentUser={currentUser}
-              loading={loading}
+              isLoading={feed.isLoading}
+              error={feed.error}
+              onRetry={() => feed.retry()}
+              hasNextPage={feed.hasNextPage}
+              onLoadMore={() => feed.loadMore()}
+              isLoadingMore={feed.isLoadingMore}
+              loadMoreError={feed.loadMoreError}
+              activeCategoryName={activeCategoryObj?.name ?? null}
             />
           </motion.div>
 
